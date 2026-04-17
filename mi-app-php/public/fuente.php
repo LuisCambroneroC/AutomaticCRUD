@@ -1,3 +1,4 @@
+
 <?php
 session_start();
 require_once __DIR__ . '/../src/Config/database.php';
@@ -8,6 +9,8 @@ $tablas = [];
 $campos = [];
 $tabla_seleccionada = '';
 $campos_marcados = [];
+
+
 
 // Obtener configuración de la sesión
 if (!isset($_SESSION['db_config'])) {
@@ -33,6 +36,7 @@ if (!isset($_SESSION['db_config'])) {
         
         // Si se ha seleccionado una tabla, obtener sus campos y guardar en sesión
         if (isset($_POST['tabla_seleccionada']) && !empty($_POST['tabla_seleccionada'])) {
+            echo 'Tabla: '.$_POST['tabla_seleccionada'];
             $tabla_seleccionada = $_POST['tabla_seleccionada'];
             
             // Guardar la tabla seleccionada en sesión inmediatamente
@@ -121,128 +125,6 @@ if (!isset($_SESSION['db_config'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fuente - Configuración</title>
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        h1 {
-            color: #333;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 10px;
-        }
-        .nav-links {
-            margin-bottom: 20px;
-        }
-        .nav-links a {
-            margin-right: 15px;
-            text-decoration: none;
-            color: #007bff;
-        }
-        .nav-links a:hover {
-            text-decoration: underline;
-        }
-        .alert {
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-        }
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .alert-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #333;
-        }
-        select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-        .campos-container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-top: 20px;
-        }
-        .campo-item {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            align-items: center;
-        }
-        .campo-item:last-child {
-            border-bottom: none;
-        }
-        .campo-item input[type="checkbox"] {
-            margin-right: 15px;
-            width: 20px;
-            height: 20px;
-        }
-        .campo-item label {
-            margin: 0;
-            font-weight: normal;
-            cursor: pointer;
-            flex: 1;
-        }
-        .btn {
-            padding: 12px 24px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 10px;
-        }
-        .btn:hover {
-            background-color: #0056b3;
-        }
-        .btn-secondary {
-            background-color: #6c757d;
-        }
-        .btn-secondary:hover {
-            background-color: #545b62;
-        }
-        .info-sesion {
-            background-color: #e7f3ff;
-            padding: 15px;
-            border-radius: 4px;
-            margin-top: 20px;
-            border: 1px solid #b3d9ff;
-        }
-        .info-sesion h3 {
-            margin-top: 0;
-            color: #0056b3;
-        }
-        .tag {
-            display: inline-block;
-            background-color: #007bff;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 3px;
-            margin: 5px 5px 5px 0;
-            font-size: 14px;
-        }
-    </style>
 </head>
 <body>
     <div class="nav-links">

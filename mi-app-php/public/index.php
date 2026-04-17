@@ -472,7 +472,7 @@ $pagina_actual = isset($_GET['page']) ? $_GET['page'] : 'principal';
 
             case 'crud':
                 // Verificar si hay configuración guardada
-                if (!isset($_SESSION['db_config']) || !isset($_SESSION['selected_table']) || !isset($_SESSION['table_fields'])) {
+                if (!isset($_SESSION['db_config']) || !isset($_SESSION['tabla_seleccionada']) || !isset($_SESSION['campos_marcados'])) {
                     ?>
                     <h1>CRUD</h1>
                     <div class="content-section">
@@ -515,6 +515,7 @@ $pagina_actual = isset($_GET['page']) ? $_GET['page'] : 'principal';
                 <?php
                 break;
         }
+        
         ?>
     </main>
 
