@@ -188,7 +188,7 @@ $pagina_actual = isset($_GET['page']) ? $_GET['page'] : 'principal';
                     </a>
                 </li>
                 <li>
-                    <a href="fuente.php" class="<?php echo $pagina_actual === 'fuente' ? 'active' : ''; ?>">
+                    <a href="?page=fuente" class="<?php echo $pagina_actual === 'fuente' ? 'active' : ''; ?>">
                         📊 Fuente
                     </a>
                 </li>
@@ -280,6 +280,144 @@ $pagina_actual = isset($_GET['page']) ? $_GET['page'] : 'principal';
                         </div>
                     <?php endif; ?>
                 </div>
+                <?php
+                break;
+
+            case 'fuente':
+                require_once __DIR__ . '/../src/Config/database.php';
+                
+                $mensaje_fuente = '';
+                $error_fuente = '';
+                $tablas = [];
+                $campos = [];
+                $tabla_seleccionada = '';
+                $campos_marcados = [];
+                
+                // Obtener configuración de la sesión
+                if (!isset($_SESSION['db_config'])) {
+                    $error_fuente = "No hay configuración de base de datos guardada. Por favor configura la conexión primero.";
+                } else {
+                    try {
+                        $db = new Database();
+                        
+                        // Obtener todas las tablas de la base de datos
+                        $resultado = $db->query("SHOW TABLES");
+                        $tablas = $resultado->fetchAll(PDO::FETCH_COLUMN);
+                        
+                        // Si se ha seleccionado una tabla, obtener sus campos
+                        if (isset($_POST['tabla_seleccionada']) && !empty($_POST['tabla_seleccionada'])) {
+                            $tabla_seleccionada = $_POST['tabla_seleccionada'];
+                            
+                            // Obtener campos de la tabla seleccionada
+                            $stmt = $db->query("SHOW COLUMNS FROM `" . $tabla_seleccionada . "`");
+                            $campos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                        }
+                        
+                        // Si se han marcado campos, guardar en sesión
+                        if (isset($_POST['guardar_campos']) && !empty($_POST['campos']) && !empty($_POST['tabla_seleccionada'])) {
+                            $tabla_seleccionada = $_POST['tabla_seleccionada'];
+                            $campos_marcados = $_POST['campos'];
+                            
+                            // Guardar en sesión
+                            $_SESSION['tabla_seleccionada'] = $tabla_seleccionada;
+                            $_SESSION['campos_marcados'] = $campos_marcados;
+                            
+                            $mensaje_fuente = "Tabla y campos guardados correctamente en sesión.";
+                            
+                            // Recargar campos para mostrar los marcados
+                            $stmt = $db->query("SHOW COLUMNS FROM `" . $tabla_seleccionada . "`");
+                            $campos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                        } elseif (isset($_SESSION['tabla_seleccionada'])) {
+                            // Cargar desde sesión si existe
+                            $tabla_seleccionada = $_SESSION['tabla_seleccionada'];
+                            $campos_marcados = $_SESSION['campos_marcados'] ?? [];
+                            
+                            // Obtener campos de la tabla seleccionada desde sesión
+                            if (!empty($tabla_seleccionada)) {
+                                $stmt = $db->query("SHOW COLUMNS FROM `" . $tabla_seleccionada . "`");
+                                $campos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                            }
+                        }
+                        
+                    } catch (Exception $e) {
+                        $error_fuente = "Error al conectar con la base de datos: " . $e->getMessage();
+                    }
+                }
+                ?>
+                <h1>Fuente de Datos</h1>
+                
+                <?php if ($mensaje_fuente): ?>
+                    <div class="mensaje-exito">
+                        <?php echo htmlspecialchars($mensaje_fuente); ?>
+                    </div>
+                <?php endif; ?>
+                
+                <?php if ($error_fuente): ?>
+                    <div class="content-section" style="background-color: #f8d7da; border: 1px solid #f5c6cb;">
+                        <p style="color: #721c24;"><?php echo htmlspecialchars($error_fuente); ?></p>
+                    </div>
+                <?php else: ?>
+                    <div class="content-section">
+                        <form method="POST">
+                            <div class="form-group">
+                                <label for="tabla_seleccionada">Seleccionar Tabla:</label>
+                                <select name="tabla_seleccionada" id="tabla_seleccionada" onchange="this.form.submit()">
+                                    <option value="">-- Seleccione una tabla --</option>
+                                    <?php foreach ($tablas as $tabla): ?>
+                                        <option value="<?php echo htmlspecialchars($tabla); ?>" 
+                                                <?php echo ($tabla === $tabla_seleccionada) ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($tabla); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </form>
+                        
+                        <?php if (!empty($tabla_seleccionada) && !empty($campos)): ?>
+                            <div style="margin-top: 20px;">
+                                <h3 style="margin-bottom: 15px; color: #2c3e50;">Campos de la tabla: <?php echo htmlspecialchars($tabla_seleccionada); ?></h3>
+                                <form method="POST">
+                                    <input type="hidden" name="tabla_seleccionada" value="<?php echo htmlspecialchars($tabla_seleccionada); ?>">
+                                    
+                                    <?php foreach ($campos as $campo): ?>
+                                        <div style="padding: 10px; border-bottom: 1px solid #eee; display: flex; align-items: center;">
+                                            <input type="checkbox" 
+                                                   name="campos[]" 
+                                                   value="<?php echo htmlspecialchars($campo['Field']); ?>" 
+                                                   id="campo_<?php echo htmlspecialchars($campo['Field']); ?>"
+                                                   <?php echo in_array($campo['Field'], $campos_marcados) ? 'checked' : ''; ?>
+                                                   style="margin-right: 15px; width: 20px; height: 20px;">
+                                            <label for="campo_<?php echo htmlspecialchars($campo['Field']); ?>"
+                                                   style="margin: 0; font-weight: normal; cursor: pointer; flex: 1;">
+                                                <?php echo htmlspecialchars($campo['Field']); ?> 
+                                                <small style="color: #666;">(<?php echo htmlspecialchars($campo['Type']); ?>)</small>
+                                            </label>
+                                        </div>
+                                    <?php endforeach; ?>
+                                    
+                                    <button type="submit" name="guardar_campos" class="btn-guardar" style="margin-top: 15px;">Guardar Campos en Sesión</button>
+                                </form>
+                            </div>
+                            
+                            <?php if (!empty($campos_marcados)): ?>
+                                <div class="config-info" style="margin-top: 20px;">
+                                    <strong>Información guardada en sesión:</strong><br>
+                                    <strong>Tabla seleccionada:</strong> <?php echo htmlspecialchars($tabla_seleccionada); ?><br>
+                                    <strong>Campos marcados (<?php echo count($campos_marcados); ?>):</strong><br>
+                                    <?php foreach ($campos_marcados as $campo): ?>
+                                        <span style="display: inline-block; background-color: #3498db; color: white; padding: 5px 10px; border-radius: 3px; margin: 5px 5px 5px 0; font-size: 14px;">
+                                            <?php echo htmlspecialchars($campo); ?>
+                                        </span>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
+                        <?php elseif (!empty($tabla_seleccionada)): ?>
+                            <div class="content-section">
+                                <p>No se encontraron campos para esta tabla.</p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
                 <?php
                 break;
 
