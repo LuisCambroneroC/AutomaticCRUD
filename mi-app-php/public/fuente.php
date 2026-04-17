@@ -31,9 +31,12 @@ if (!isset($_SESSION['db_config'])) {
             $tablas_data->close();
         }
         
-        // Si se ha seleccionado una tabla, obtener sus campos
+        // Si se ha seleccionado una tabla, obtener sus campos y guardar en sesión
         if (isset($_POST['tabla_seleccionada']) && !empty($_POST['tabla_seleccionada'])) {
             $tabla_seleccionada = $_POST['tabla_seleccionada'];
+            
+            // Guardar la tabla seleccionada en sesión inmediatamente
+            $_SESSION['tabla_seleccionada'] = $tabla_seleccionada;
             
             // Obtener campos de la tabla seleccionada
             $campos_data = $db->query("SHOW COLUMNS FROM `" . $tabla_seleccionada . "`");
@@ -79,7 +82,7 @@ if (!isset($_SESSION['db_config'])) {
             // Asegurar que $campos_marcados tenga los valores correctos de la sesión
             $campos_marcados = $_SESSION['campos_marcados'];
             
-        } elseif (isset($_SESSION['tabla_seleccionada']) && !isset($_POST['guardar_campos'])) {
+        } elseif (isset($_SESSION['tabla_seleccionada']) && isset($_SESSION['campos_marcados']) && !isset($_POST['guardar_campos'])) {
             // Cargar desde sesión si existe y no estamos procesando un guardado nuevo
             $tabla_seleccionada = $_SESSION['tabla_seleccionada'];
             $campos_marcados = $_SESSION['campos_marcados'] ?? [];
