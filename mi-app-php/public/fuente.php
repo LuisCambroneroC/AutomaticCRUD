@@ -321,10 +321,9 @@ if (!isset($_SESSION['db_config'])) {
     <?php endif; ?>
     
     <!-- DEBUG: Estado de la Sesión -->
-    <div style="margin-top: 40px; padding: 20px; background-color: #f0f0f0; border: 2px solid #999; border-radius: 8px;">
-        <h3 style="color: #cc0000;">DEBUG: Contenido actual de $_SESSION</h3>
-        <pre style="background-color: #fff; padding: 15px; border: 1px solid #ccc; overflow-x: auto;"><?php echo htmlspecialchars(print_r($_SESSION, true)); ?></pre>
-        <p style="color: #666; font-size: 12px;">Si ves 'tabla_seleccionada' y 'campos_marcados' arriba con tus datos, el guardado funciona correctamente.</p>
+    <div style="background:#fff3cd; border:1px solid #ffc107; padding:10px; margin-top:20px;">
+    <strong>DEBUG SESIÓN:</strong>
+    <pre><?php print_r($_SESSION); ?></pre>
     </div>
 </body>
 </html>
