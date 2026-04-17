@@ -17,16 +17,41 @@ if (!isset($_SESSION['db_config'])) {
         $db = new Database();
         
         // Obtener todas las tablas de la base de datos
-        $resultado = $db->query("SHOW TABLES");
-        $tablas = $resultado->fetchAll(PDO::FETCH_COLUMN);
+        $tablas_data = $db->query("SHOW TABLES");
+        $tablas = [];
+        if ($tablas_data instanceof mysqli_result) {
+            while ($row = $tablas_data->fetch_row()) {
+                $tablas[] = $row[0];
+            }
+        } elseif ($tablas_data instanceof mysqli_stmt) {
+            $result = $tablas_data->get_result();
+            while ($row = $result->fetch_row()) {
+                $tablas[] = $row[0];
+            }
+            $tablas_data->close();
+        }
         
-        // Si se ha seleccionado una tabla, obtener sus campos
+        // Si se ha seleccionado una tabla, obtener sus campos y guardar en sesión
         if (isset($_POST['tabla_seleccionada']) && !empty($_POST['tabla_seleccionada'])) {
             $tabla_seleccionada = $_POST['tabla_seleccionada'];
             
+            // Guardar la tabla seleccionada en sesión inmediatamente
+            $_SESSION['tabla_seleccionada'] = $tabla_seleccionada;
+            
             // Obtener campos de la tabla seleccionada
-            $stmt = $db->query("SHOW COLUMNS FROM `" . $tabla_seleccionada . "`");
-            $campos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $campos_data = $db->query("SHOW COLUMNS FROM `" . $tabla_seleccionada . "`");
+            $campos = [];
+            if ($campos_data instanceof mysqli_result) {
+                while ($row = $campos_data->fetch_assoc()) {
+                    $campos[] = $row;
+                }
+            } elseif ($campos_data instanceof mysqli_stmt) {
+                $result = $campos_data->get_result();
+                while ($row = $result->fetch_assoc()) {
+                    $campos[] = $row;
+                }
+                $campos_data->close();
+            }
         }
         
         // Si se han marcado campos, guardar en sesión
@@ -34,24 +59,53 @@ if (!isset($_SESSION['db_config'])) {
             $tabla_seleccionada = $_POST['tabla_seleccionada'];
             $campos_marcados = $_POST['campos'];
             
-            // Guardar en sesión
+            // Guardar en sesión explícitamente
             $_SESSION['tabla_seleccionada'] = $tabla_seleccionada;
             $_SESSION['campos_marcados'] = $campos_marcados;
+            
+            // Forzar escritura de sesión
+            session_write_close();
+            session_start();
             
             $mensaje = "Tabla y campos guardados correctamente en sesión.";
             
             // Recargar campos para mostrar los marcados
-            $stmt = $db->query("SHOW COLUMNS FROM `" . $tabla_seleccionada . "`");
-            $campos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } elseif (isset($_SESSION['tabla_seleccionada'])) {
-            // Cargar desde sesión si existe
+            $campos_data = $db->query("SHOW COLUMNS FROM `" . $tabla_seleccionada . "`");
+            $campos = [];
+            if ($campos_data instanceof mysqli_result) {
+                while ($row = $campos_data->fetch_assoc()) {
+                    $campos[] = $row;
+                }
+            } elseif ($campos_data instanceof mysqli_stmt) {
+                $result = $campos_data->get_result();
+                while ($row = $result->fetch_assoc()) {
+                    $campos[] = $row;
+                }
+                $campos_data->close();
+            }
+            // Asegurar que $campos_marcados tenga los valores correctos de la sesión
+            $campos_marcados = $_SESSION['campos_marcados'];
+            
+        } elseif (isset($_SESSION['tabla_seleccionada']) && isset($_SESSION['campos_marcados']) && !isset($_POST['guardar_campos'])) {
+            // Cargar desde sesión si existe y no estamos procesando un guardado nuevo
             $tabla_seleccionada = $_SESSION['tabla_seleccionada'];
             $campos_marcados = $_SESSION['campos_marcados'] ?? [];
             
             // Obtener campos de la tabla seleccionada desde sesión
             if (!empty($tabla_seleccionada)) {
-                $stmt = $db->query("SHOW COLUMNS FROM `" . $tabla_seleccionada . "`");
-                $campos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                $campos_data = $db->query("SHOW COLUMNS FROM `" . $tabla_seleccionada . "`");
+                $campos = [];
+                if ($campos_data instanceof mysqli_result) {
+                    while ($row = $campos_data->fetch_assoc()) {
+                        $campos[] = $row;
+                    }
+                } elseif ($campos_data instanceof mysqli_stmt) {
+                    $result = $campos_data->get_result();
+                    while ($row = $result->fetch_assoc()) {
+                        $campos[] = $row;
+                    }
+                    $campos_data->close();
+                }
             }
         }
         
@@ -193,6 +247,7 @@ if (!isset($_SESSION['db_config'])) {
 <body>
     <div class="nav-links">
         <a href="index.php">← Volver a Configuración</a>
+        <a href="crud.php" style="font-weight: bold; color: #28a745; margin-left: 15px;">IR AL CRUD →</a>
     </div>
     
     <h1>Fuente de Datos</h1>
@@ -253,6 +308,9 @@ if (!isset($_SESSION['db_config'])) {
                             <span class="tag"><?php echo htmlspecialchars($campo); ?></span>
                         <?php endforeach; ?>
                     </div>
+                    <div style="margin-top: 20px;">
+                        <a href="crud.php" class="btn">Ir al CRUD →</a>
+                    </div>
                 </div>
             <?php endif; ?>
         <?php elseif (!empty($tabla_seleccionada)): ?>
@@ -261,5 +319,12 @@ if (!isset($_SESSION['db_config'])) {
             </div>
         <?php endif; ?>
     <?php endif; ?>
+    
+    <!-- DEBUG: Estado de la Sesión -->
+    <div style="margin-top: 40px; padding: 20px; background-color: #f0f0f0; border: 2px solid #999; border-radius: 8px;">
+        <h3 style="color: #cc0000;">DEBUG: Contenido actual de $_SESSION</h3>
+        <pre style="background-color: #fff; padding: 15px; border: 1px solid #ccc; overflow-x: auto;"><?php echo htmlspecialchars(print_r($_SESSION, true)); ?></pre>
+        <p style="color: #666; font-size: 12px;">Si ves 'tabla_seleccionada' y 'campos_marcados' arriba con tus datos, el guardado funciona correctamente.</p>
+    </div>
 </body>
 </html>

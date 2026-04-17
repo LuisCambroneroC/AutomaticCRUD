@@ -193,6 +193,11 @@ $pagina_actual = isset($_GET['page']) ? $_GET['page'] : 'principal';
                     </a>
                 </li>
                 <li>
+                    <a href="?page=crud" class="<?php echo $pagina_actual === 'crud' ? 'active' : ''; ?>">
+                        🔧 CRUD
+                    </a>
+                </li>
+                <li>
                     <a href="?page=acerca_de" class="<?php echo $pagina_actual === 'acerca_de' ? 'active' : ''; ?>">
                         ℹ️ Acerca de
                     </a>
@@ -302,15 +307,37 @@ $pagina_actual = isset($_GET['page']) ? $_GET['page'] : 'principal';
                         
                         // Obtener todas las tablas de la base de datos
                         $resultado = $db->query("SHOW TABLES");
-                        $tablas = $resultado->fetchAll(PDO::FETCH_COLUMN);
+                        $tablas = [];
+                        if ($resultado instanceof mysqli_result) {
+                            while ($row = $resultado->fetch_row()) {
+                                $tablas[] = $row[0];
+                            }
+                        } elseif ($resultado instanceof mysqli_stmt) {
+                            $result = $resultado->get_result();
+                            while ($row = $result->fetch_row()) {
+                                $tablas[] = $row[0];
+                            }
+                            $resultado->close();
+                        }
                         
                         // Si se ha seleccionado una tabla, obtener sus campos
                         if (isset($_POST['tabla_seleccionada']) && !empty($_POST['tabla_seleccionada'])) {
                             $tabla_seleccionada = $_POST['tabla_seleccionada'];
                             
                             // Obtener campos de la tabla seleccionada
-                            $stmt = $db->query("SHOW COLUMNS FROM `" . $tabla_seleccionada . "`");
-                            $campos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                            $resultado = $db->query("SHOW COLUMNS FROM `" . $tabla_seleccionada . "`");
+                            $campos = [];
+                            if ($resultado instanceof mysqli_result) {
+                                while ($row = $resultado->fetch_assoc()) {
+                                    $campos[] = $row;
+                                }
+                            } elseif ($resultado instanceof mysqli_stmt) {
+                                $result = $resultado->get_result();
+                                while ($row = $result->fetch_assoc()) {
+                                    $campos[] = $row;
+                                }
+                                $resultado->close();
+                            }
                         }
                         
                         // Si se han marcado campos, guardar en sesión
@@ -325,8 +352,19 @@ $pagina_actual = isset($_GET['page']) ? $_GET['page'] : 'principal';
                             $mensaje_fuente = "Tabla y campos guardados correctamente en sesión.";
                             
                             // Recargar campos para mostrar los marcados
-                            $stmt = $db->query("SHOW COLUMNS FROM `" . $tabla_seleccionada . "`");
-                            $campos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                            $resultado = $db->query("SHOW COLUMNS FROM `" . $tabla_seleccionada . "`");
+                            $campos = [];
+                            if ($resultado instanceof mysqli_result) {
+                                while ($row = $resultado->fetch_assoc()) {
+                                    $campos[] = $row;
+                                }
+                            } elseif ($resultado instanceof mysqli_stmt) {
+                                $result = $resultado->get_result();
+                                while ($row = $result->fetch_assoc()) {
+                                    $campos[] = $row;
+                                }
+                                $resultado->close();
+                            }
                         } elseif (isset($_SESSION['tabla_seleccionada'])) {
                             // Cargar desde sesión si existe
                             $tabla_seleccionada = $_SESSION['tabla_seleccionada'];
@@ -334,8 +372,19 @@ $pagina_actual = isset($_GET['page']) ? $_GET['page'] : 'principal';
                             
                             // Obtener campos de la tabla seleccionada desde sesión
                             if (!empty($tabla_seleccionada)) {
-                                $stmt = $db->query("SHOW COLUMNS FROM `" . $tabla_seleccionada . "`");
-                                $campos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                                $resultado = $db->query("SHOW COLUMNS FROM `" . $tabla_seleccionada . "`");
+                            $campos = [];
+                            if ($resultado instanceof mysqli_result) {
+                                while ($row = $resultado->fetch_assoc()) {
+                                    $campos[] = $row;
+                                }
+                            } elseif ($resultado instanceof mysqli_stmt) {
+                                $result = $resultado->get_result();
+                                while ($row = $result->fetch_assoc()) {
+                                    $campos[] = $row;
+                                }
+                                $resultado->close();
+                            }
                             }
                         }
                         
@@ -419,6 +468,25 @@ $pagina_actual = isset($_GET['page']) ? $_GET['page'] : 'principal';
                     </div>
                 <?php endif; ?>
                 <?php
+                break;
+
+            case 'crud':
+                // Verificar si hay configuración guardada
+                if (!isset($_SESSION['db_config']) || !isset($_SESSION['selected_table']) || !isset($_SESSION['table_fields'])) {
+                    ?>
+                    <h1>CRUD</h1>
+                    <div class="content-section">
+                        <div class="alert alert-warning">
+                            <p><strong>⚠️ Configuración requerida:</strong></p>
+                            <p>Para usar el CRUD, primero debes seleccionar una tabla y campos en la página <strong>Fuente</strong>.</p>
+                            <a href="?page=fuente" class="btn btn-primary mt-2">Ir a Fuente</a>
+                        </div>
+                    </div>
+                    <?php
+                } else {
+                    // Incluir el archivo crud.php
+                    include 'crud.php';
+                }
                 break;
 
             case 'acerca_de':
