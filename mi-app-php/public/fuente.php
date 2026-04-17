@@ -239,6 +239,9 @@ if (!isset($_SESSION['db_config'])) {
 <body>
     <div class="nav-links">
         <a href="index.php">← Volver a Configuración</a>
+        <?php if (!empty($campos_marcados)): ?>
+            <a href="crud.php" style="font-weight: bold; color: #28a745;">IR AL CRUD →</a>
+        <?php endif; ?>
     </div>
     
     <h1>Fuente de Datos</h1>
