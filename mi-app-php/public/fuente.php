@@ -56,7 +56,7 @@ if (!isset($_SESSION['db_config'])) {
             $tabla_seleccionada = $_POST['tabla_seleccionada'];
             $campos_marcados = $_POST['campos'];
             
-            // Guardar en sesión
+            // Guardar en sesión explícitamente
             $_SESSION['tabla_seleccionada'] = $tabla_seleccionada;
             $_SESSION['campos_marcados'] = $campos_marcados;
             
@@ -76,10 +76,11 @@ if (!isset($_SESSION['db_config'])) {
                 }
                 $campos_data->close();
             }
-            // Asegurar que $campos_marcados tenga los valores correctos
+            // Asegurar que $campos_marcados tenga los valores correctos de la sesión
             $campos_marcados = $_SESSION['campos_marcados'];
-        } elseif (isset($_SESSION['tabla_seleccionada'])) {
-            // Cargar desde sesión si existe
+            
+        } elseif (isset($_SESSION['tabla_seleccionada']) && !isset($_POST['guardar_campos'])) {
+            // Cargar desde sesión si existe y no estamos procesando un guardado nuevo
             $tabla_seleccionada = $_SESSION['tabla_seleccionada'];
             $campos_marcados = $_SESSION['campos_marcados'] ?? [];
             

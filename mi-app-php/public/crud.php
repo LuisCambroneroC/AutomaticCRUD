@@ -10,8 +10,8 @@ $campos_info = [];
 $registros = [];
 
 // Verificar si hay configuración en sesión
-if (!isset($_SESSION['db_config']) || !isset($_SESSION['tabla_seleccionada']) || !isset($_SESSION['campos_marcados'])) {
-    $error = "No hay configuración de base de datos o tabla/campos seleccionados. Por favor configura la fuente de datos primero en <a href='fuente.php'>Fuente.php</a>.";
+if (!isset($_SESSION['tabla_seleccionada']) || !isset($_SESSION['campos_marcados'])) {
+    $error = "No hay tabla/campos seleccionados. Por favor configura la fuente de datos primero en <a href='fuente.php'>Fuente.php</a>.";
 } else {
     try {
         $db = new Database();
