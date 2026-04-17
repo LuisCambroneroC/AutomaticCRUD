@@ -193,6 +193,11 @@ $pagina_actual = isset($_GET['page']) ? $_GET['page'] : 'principal';
                     </a>
                 </li>
                 <li>
+                    <a href="?page=crud" class="<?php echo $pagina_actual === 'crud' ? 'active' : ''; ?>">
+                        🔧 CRUD
+                    </a>
+                </li>
+                <li>
                     <a href="?page=acerca_de" class="<?php echo $pagina_actual === 'acerca_de' ? 'active' : ''; ?>">
                         ℹ️ Acerca de
                     </a>
@@ -463,6 +468,25 @@ $pagina_actual = isset($_GET['page']) ? $_GET['page'] : 'principal';
                     </div>
                 <?php endif; ?>
                 <?php
+                break;
+
+            case 'crud':
+                // Verificar si hay configuración guardada
+                if (!isset($_SESSION['db_config']) || !isset($_SESSION['selected_table']) || !isset($_SESSION['table_fields'])) {
+                    ?>
+                    <h1>CRUD</h1>
+                    <div class="content-section">
+                        <div class="alert alert-warning">
+                            <p><strong>⚠️ Configuración requerida:</strong></p>
+                            <p>Para usar el CRUD, primero debes seleccionar una tabla y campos en la página <strong>Fuente</strong>.</p>
+                            <a href="?page=fuente" class="btn btn-primary mt-2">Ir a Fuente</a>
+                        </div>
+                    </div>
+                    <?php
+                } else {
+                    // Incluir el archivo crud.php
+                    include 'crud.php';
+                }
                 break;
 
             case 'acerca_de':
