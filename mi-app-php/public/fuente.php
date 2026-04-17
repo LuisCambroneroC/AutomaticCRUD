@@ -76,6 +76,8 @@ if (!isset($_SESSION['db_config'])) {
                 }
                 $campos_data->close();
             }
+            // Asegurar que $campos_marcados tenga los valores correctos
+            $campos_marcados = $_SESSION['campos_marcados'];
         } elseif (isset($_SESSION['tabla_seleccionada'])) {
             // Cargar desde sesión si existe
             $tabla_seleccionada = $_SESSION['tabla_seleccionada'];
