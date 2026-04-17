@@ -1,4 +1,19 @@
 <?php
+// Iniciar sesión
+session_start();
+
+// Manejar el guardado de la configuración de conexión
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar_configuracion'])) {
+    $_SESSION['db_config'] = [
+        'host' => $_POST['host'] ?? '',
+        'port' => $_POST['port'] ?? '',
+        'username' => $_POST['username'] ?? '',
+        'password' => $_POST['password'] ?? '',
+        'database' => $_POST['database'] ?? ''
+    ];
+    $mensaje_exito = "Configuración de conexión guardada correctamente.";
+}
+
 // Determinar la página actual
 $pagina_actual = isset($_GET['page']) ? $_GET['page'] : 'principal';
 ?>
@@ -95,6 +110,65 @@ $pagina_actual = isset($_GET['page']) ? $_GET['page'] : 'principal';
             margin-top: 20px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
+
+        /* Estilos para el formulario de configuración */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-guardar {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-guardar:hover {
+            background-color: #2980b9;
+        }
+
+        .mensaje-exito {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #c3e6cb;
+        }
+
+        .config-info {
+            background-color: #e7f3ff;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #0c5460;
+        }
     </style>
 </head>
 <body>
@@ -139,14 +213,67 @@ $pagina_actual = isset($_GET['page']) ? $_GET['page'] : 'principal';
             case 'configuracion':
                 ?>
                 <h1>Configuración</h1>
+                
+                <?php if (isset($mensaje_exito)): ?>
+                    <div class="mensaje-exito">
+                        <?php echo htmlspecialchars($mensaje_exito); ?>
+                    </div>
+                <?php endif; ?>
+
                 <div class="content-section">
                     <p>En esta sección puedes configurar los parámetros de tu aplicación.</p>
-                    <p>Opciones de configuración disponibles:</p>
-                    <ul style="margin-left: 20px; margin-top: 10px; color: #7f8c8d;">
-                        <li>Preferencias de usuario</li>
-                        <li>Configuración del sistema</li>
-                        <li>Gestión de notificaciones</li>
-                    </ul>
+                    
+                    <h3 style="margin-top: 20px; margin-bottom: 15px; color: #2c3e50;">🔌 Conexión</h3>
+                    <form method="POST" action="">
+                        <input type="hidden" name="guardar_configuracion" value="1">
+                        
+                        <div class="form-group">
+                            <label for="host">Host:</label>
+                            <input type="text" id="host" name="host" 
+                                   value="<?php echo htmlspecialchars($_SESSION['db_config']['host'] ?? 'localhost'); ?>" 
+                                   placeholder="Ej: localhost" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="port">Puerto:</label>
+                            <input type="number" id="port" name="port" 
+                                   value="<?php echo htmlspecialchars($_SESSION['db_config']['port'] ?? '3306'); ?>" 
+                                   placeholder="Ej: 3306" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="username">Usuario:</label>
+                            <input type="text" id="username" name="username" 
+                                   value="<?php echo htmlspecialchars($_SESSION['db_config']['username'] ?? ''); ?>" 
+                                   placeholder="Ej: root" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password">Contraseña:</label>
+                            <input type="password" id="password" name="password" 
+                                   value="<?php echo htmlspecialchars($_SESSION['db_config']['password'] ?? ''); ?>" 
+                                   placeholder="Contraseña de la base de datos">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="database">Nombre de la Base de Datos:</label>
+                            <input type="text" id="database" name="database" 
+                                   value="<?php echo htmlspecialchars($_SESSION['db_config']['database'] ?? ''); ?>" 
+                                   placeholder="Ej: mi_base_de_datos" required>
+                        </div>
+                        
+                        <button type="submit" class="btn-guardar">Guardar Configuración</button>
+                    </form>
+
+                    <?php if (isset($_SESSION['db_config']) && !empty($_SESSION['db_config']['host'])): ?>
+                        <div class="config-info">
+                            <strong>Configuración actual guardada en sesión:</strong><br>
+                            Host: <?php echo htmlspecialchars($_SESSION['db_config']['host']); ?> | 
+                            Puerto: <?php echo htmlspecialchars($_SESSION['db_config']['port']); ?> | 
+                            Usuario: <?php echo htmlspecialchars($_SESSION['db_config']['username']); ?> | 
+                            Base de datos: <?php echo htmlspecialchars($_SESSION['db_config']['database']); ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
                 <?php
                 break;
