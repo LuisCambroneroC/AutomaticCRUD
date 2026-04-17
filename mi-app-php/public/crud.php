@@ -8,6 +8,7 @@ $tabla_seleccionada = '';
 $campos_marcados = [];
 $campos_info = [];
 $registros = [];
+$db_config = null;
 
 // Verificar si hay configuración en sesión
 if (!isset($_SESSION['tabla_seleccionada']) || !isset($_SESSION['campos_marcados'])) {
@@ -42,7 +43,19 @@ if (!isset($_SESSION['tabla_seleccionada']) || !isset($_SESSION['campos_marcados
             return '`' . $c . '`';
         }, $campos_marcados));
         
-        $registros = $db->fetchAll("SELECT " . $campos_sql . " FROM `" . $tabla_seleccionada . "`");
+        $registros_data = $db->query("SELECT " . $campos_sql . " FROM `" . $tabla_seleccionada . "`");
+        $registros = [];
+        if ($registros_data instanceof mysqli_result) {
+            while ($row = $registros_data->fetch_assoc()) {
+                $registros[] = $row;
+            }
+        } elseif ($registros_data instanceof mysqli_stmt) {
+            $result = $registros_data->get_result();
+            while ($row = $result->fetch_assoc()) {
+                $registros[] = $row;
+            }
+            $registros_data->close();
+        }
         
     } catch (Exception $e) {
         $error = "Error: " . $e->getMessage();

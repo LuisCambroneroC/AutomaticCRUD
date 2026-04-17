@@ -63,6 +63,10 @@ if (!isset($_SESSION['db_config'])) {
             $_SESSION['tabla_seleccionada'] = $tabla_seleccionada;
             $_SESSION['campos_marcados'] = $campos_marcados;
             
+            // Forzar escritura de sesión
+            session_write_close();
+            session_start();
+            
             $mensaje = "Tabla y campos guardados correctamente en sesión.";
             
             // Recargar campos para mostrar los marcados
@@ -315,5 +319,12 @@ if (!isset($_SESSION['db_config'])) {
             </div>
         <?php endif; ?>
     <?php endif; ?>
+    
+    <!-- DEBUG: Estado de la Sesión -->
+    <div style="margin-top: 40px; padding: 20px; background-color: #f0f0f0; border: 2px solid #999; border-radius: 8px;">
+        <h3 style="color: #cc0000;">DEBUG: Contenido actual de $_SESSION</h3>
+        <pre style="background-color: #fff; padding: 15px; border: 1px solid #ccc; overflow-x: auto;"><?php echo htmlspecialchars(print_r($_SESSION, true)); ?></pre>
+        <p style="color: #666; font-size: 12px;">Si ves 'tabla_seleccionada' y 'campos_marcados' arriba con tus datos, el guardado funciona correctamente.</p>
+    </div>
 </body>
 </html>
