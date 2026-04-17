@@ -1,0 +1,36 @@
+```
+# PHP-specific ignores
+*.php~
+*.php.bak
+*.log
+composer.lock
+
+# Dependencies
+vendor/
+composer.phar
+composer.lock
+
+# Environment
+.env
+.env.local
+.env.*
+
+# Logs
+storage/logs/
+*.log
+
+# Temporary files
+*.tmp
+*.bak
+*~
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+```
