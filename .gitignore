@@ -1,32 +1,15 @@
+```
 # Environment
 .env
 .env.local
-.env.*
+*.env.*
 
-# Logs and temp files
+# Logs
 *.log
-*.tmp
-*.swp
 
 # Dependencies
 vendor/
-node_modules/
 
-# Editors
-.vscode/
-.idea/
-
-# PHP specific
-*.php~
-*.php.bak
-*.php.swp
-
-# OS generated files
-.DS_Store
-Thumbs.db
-
-# Build and cache directories
-build/
-dist/
-.cache/
-.logs/
+# Build artifacts
+public/fuente.php
+```
