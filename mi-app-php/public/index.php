@@ -188,6 +188,11 @@ $pagina_actual = isset($_GET['page']) ? $_GET['page'] : 'principal';
                     </a>
                 </li>
                 <li>
+                    <a href="fuente.php" class="<?php echo $pagina_actual === 'fuente' ? 'active' : ''; ?>">
+                        📊 Fuente
+                    </a>
+                </li>
+                <li>
                     <a href="?page=acerca_de" class="<?php echo $pagina_actual === 'acerca_de' ? 'active' : ''; ?>">
                         ℹ️ Acerca de
                     </a>
