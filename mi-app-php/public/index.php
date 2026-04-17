@@ -302,15 +302,37 @@ $pagina_actual = isset($_GET['page']) ? $_GET['page'] : 'principal';
                         
                         // Obtener todas las tablas de la base de datos
                         $resultado = $db->query("SHOW TABLES");
-                        $tablas = $resultado->fetchAll(PDO::FETCH_COLUMN);
+                        $tablas = [];
+                        if ($resultado instanceof mysqli_result) {
+                            while ($row = $resultado->fetch_row()) {
+                                $tablas[] = $row[0];
+                            }
+                        } elseif ($resultado instanceof mysqli_stmt) {
+                            $result = $resultado->get_result();
+                            while ($row = $result->fetch_row()) {
+                                $tablas[] = $row[0];
+                            }
+                            $resultado->close();
+                        }
                         
                         // Si se ha seleccionado una tabla, obtener sus campos
                         if (isset($_POST['tabla_seleccionada']) && !empty($_POST['tabla_seleccionada'])) {
                             $tabla_seleccionada = $_POST['tabla_seleccionada'];
                             
                             // Obtener campos de la tabla seleccionada
-                            $stmt = $db->query("SHOW COLUMNS FROM `" . $tabla_seleccionada . "`");
-                            $campos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                            $resultado = $db->query("SHOW COLUMNS FROM `" . $tabla_seleccionada . "`");
+                            $campos = [];
+                            if ($resultado instanceof mysqli_result) {
+                                while ($row = $resultado->fetch_assoc()) {
+                                    $campos[] = $row;
+                                }
+                            } elseif ($resultado instanceof mysqli_stmt) {
+                                $result = $resultado->get_result();
+                                while ($row = $result->fetch_assoc()) {
+                                    $campos[] = $row;
+                                }
+                                $resultado->close();
+                            }
                         }
                         
                         // Si se han marcado campos, guardar en sesión
@@ -325,8 +347,19 @@ $pagina_actual = isset($_GET['page']) ? $_GET['page'] : 'principal';
                             $mensaje_fuente = "Tabla y campos guardados correctamente en sesión.";
                             
                             // Recargar campos para mostrar los marcados
-                            $stmt = $db->query("SHOW COLUMNS FROM `" . $tabla_seleccionada . "`");
-                            $campos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                            $resultado = $db->query("SHOW COLUMNS FROM `" . $tabla_seleccionada . "`");
+                            $campos = [];
+                            if ($resultado instanceof mysqli_result) {
+                                while ($row = $resultado->fetch_assoc()) {
+                                    $campos[] = $row;
+                                }
+                            } elseif ($resultado instanceof mysqli_stmt) {
+                                $result = $resultado->get_result();
+                                while ($row = $result->fetch_assoc()) {
+                                    $campos[] = $row;
+                                }
+                                $resultado->close();
+                            }
                         } elseif (isset($_SESSION['tabla_seleccionada'])) {
                             // Cargar desde sesión si existe
                             $tabla_seleccionada = $_SESSION['tabla_seleccionada'];
@@ -334,8 +367,19 @@ $pagina_actual = isset($_GET['page']) ? $_GET['page'] : 'principal';
                             
                             // Obtener campos de la tabla seleccionada desde sesión
                             if (!empty($tabla_seleccionada)) {
-                                $stmt = $db->query("SHOW COLUMNS FROM `" . $tabla_seleccionada . "`");
-                                $campos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                                $resultado = $db->query("SHOW COLUMNS FROM `" . $tabla_seleccionada . "`");
+                            $campos = [];
+                            if ($resultado instanceof mysqli_result) {
+                                while ($row = $resultado->fetch_assoc()) {
+                                    $campos[] = $row;
+                                }
+                            } elseif ($resultado instanceof mysqli_stmt) {
+                                $result = $resultado->get_result();
+                                while ($row = $result->fetch_assoc()) {
+                                    $campos[] = $row;
+                                }
+                                $resultado->close();
+                            }
                             }
                         }
                         
