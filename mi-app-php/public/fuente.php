@@ -297,6 +297,9 @@ if (!isset($_SESSION['db_config'])) {
                             <span class="tag"><?php echo htmlspecialchars($campo); ?></span>
                         <?php endforeach; ?>
                     </div>
+                    <div style="margin-top: 20px;">
+                        <a href="crud.php" class="btn">Ir al CRUD →</a>
+                    </div>
                 </div>
             <?php endif; ?>
         <?php elseif (!empty($tabla_seleccionada)): ?>
